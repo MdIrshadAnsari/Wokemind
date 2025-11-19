@@ -39,7 +39,9 @@ Backend :-
 * bcrypt for password hashing
 
 Installation & Setup :-
+
 git clone https://github.com/your-username/wokemind.git
+
 cd Wokemind
 
 Backend Setup :-
