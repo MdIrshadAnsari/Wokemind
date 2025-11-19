@@ -1,0 +1,105 @@
+import React, { useEffect } from "react";
+import axios from "axios";
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { FaUserAlt } from "react-icons/fa";
+
+axios.defaults.withCredentials = true;
+function Profile() {
+  const [username, setUsername] = useState("");
+  const [email, setUseremail] = useState("");
+  const [isLoggedout, setIsLoggedOut] = useState(false);
+
+  /*---- Automatic useEffect axios API GET Request --------------- */
+  const navigate = useNavigate();
+  useEffect(() => {
+    try {
+      axios
+        .get("http://localhost:5004/api/profile", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          if (res.data.message === "successfull") {
+            setUsername(res.data.username);
+            setUseremail(res.data.useremail);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    } catch (error) {
+      console.log("try catch block error", error);
+    }
+  }, []);
+
+  /* -------- Log Out API request ------------ */
+  const logouthandler = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.get("http://localhost:5004/api/logout", {
+        withCredentials: true,
+      });
+      if (res.data.message === "Tokencleared") {
+        setIsLoggedOut(true);
+        navigate(-2);
+      } else if ((res.data.message = "badRequest")) {
+        navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+      navigate("/");
+    }
+  };
+
+  /* --------------- use another useEffect for the refresh the webpage ------------ */
+
+  useEffect(() => {
+    if (isLoggedout) {
+      alert("You are logged out!");
+      navigate("/");
+    }
+  }, [logouthandler]);
+
+  /*--------------------------- File upload using MULTER ------------------*/
+  const fileupload = () => {};
+
+  return (
+    <div className="bg-black w-full h-screen flex flex-col align-middle justify-center items-center gap-5">
+      <div className="flex flex-initial w-full p-10">
+        <button className="text-white" onClick={() => navigate(-1)}>
+         <i class="ri-arrow-left-fill text-5xl"></i>
+        </button>
+      </div>
+
+      <h1 className="text-white text-6xl">Profile</h1>
+      <div className="border-white border-2 rounded-2xl w-[90%] md:w-[35%] h-[75%] flex flex-col gap-4 items-center px-1 py-5">
+        <form
+          encType="multipart/form-data"
+          className="border-2 border-white w-30 h-30 rounded-full flex flex-col align-middle justify-center items-center p-1 mb-8"
+        >
+          <div className="bg-white w-28 h-29 rounded-full flex items-center align-center justify-center text-center ">
+            <FaUserAlt size={70} />
+          </div>
+        </form>
+        <div className=" bg-black border-2 border-white w-[95%] text-2xl text-white rounded-2xl p-3 flex flex-row align-middle justify-between items-center">
+          <p>
+            {isLoggedout ? <p className="text-white">User name</p> : username}{" "}
+          </p>
+        </div>
+        <div className=" bg-black border-2 border-white w-[95%] text-2xl text-white rounded-2xl p-3 flex flex-row align-middle justify-between items-center">
+          <p>
+            {isLoggedout ? <p className="text-white">User name</p> : email}{" "}
+          </p>
+        </div>
+        <button
+          onClick={logouthandler}
+          className=" bg-red-500 w-[95%] text-white text-center text-2xl rounded-2xl p-3 cursor-pointer"
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export default Profile;
